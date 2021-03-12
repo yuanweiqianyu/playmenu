@@ -238,33 +238,19 @@
                 cellClassName({row,column, rowIndex,columnIndex}) {
                     const rowData = this.table.tableData[rowIndex];
 
-                    // if (columnIndex!==0 && rowData.isOverDue) {
-                    //     return isPhone() ?'overdue-mob' :'overdue';
-                    // }
-                    //
-                    // if (columnIndex!==0 && !rowData.overOneMonth) {
-                    //     return isPhone() ? 'over-one-month-mob' : 'over-one-month';
-                    // }
-                    //
-                    // if (columnIndex!==0 && rowData.notOpen) {
-                    //     return isPhone() ? 'not-open-mob' :'not-open';
-                    // }
-                    //
-                    // return  isPhone() ? 'normal-mob' : 'normal';
-
                     if (columnIndex!==0 && rowData.isOverDue) {
-                        return 'overdue-mob' ;
+                        return isPhone() ?'overdue-mob' :'overdue';
                     }
 
                     if (columnIndex!==0 && !rowData.overOneMonth) {
-                        return  'over-one-month-mob' ;
+                        return isPhone() ? 'over-one-month-mob' : 'over-one-month';
                     }
 
                     if (columnIndex!==0 && rowData.notOpen) {
-                        return  'not-open-mob' ;
+                        return isPhone() ? 'not-open-mob' :'not-open';
                     }
 
-                    return   'normal-mob' ;
+                    return  isPhone() ? 'normal-mob' : 'normal';
 
                 }
 
