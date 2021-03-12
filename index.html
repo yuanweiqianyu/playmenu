@@ -17,27 +17,56 @@
            margin-top: 20px;
            padding: 20px;
        }
+        .el-table .overdue-mob {
+            color: #ddd;
+            text-decoration: line-through;
+            font-size: 30px;
+
+        }
+        .el-table .over-one-month-mob {
+            color: white;
+            background: #ca0909;
+            font-size: 30px;
+
+        }
+        .el-table .not-open-mob {
+            color: black;
+            background: #168cf5;
+            font-size: 30px;
+        }
+
+        .el-table .normal-mob{
+            font-size: 30px;
+        }
+
        .el-table .overdue {
            color: #ddd;
            text-decoration: line-through;
+           font-size: 13px;
+
        }
        .el-table .over-one-month {
            color: white;
            background: #ca0909;
+           font-size: 13px;
+
        }
-        .el-table .el-table__body tr:hover td {
-            color: #333;
-            font-weight: bold;
-        }
 
        .el-table .not-open {
            color: black;
            background: #168cf5;
+           font-size: 13px;
        }
 
-       .el-table{
-           font-size: 20px;
-       }
+        .el-table .normal{
+            font-size: 13px;
+        }
+
+        .el-table .el-table__body tr:hover td {
+            color: #333;
+            font-weight: bold;
+
+        }
 
        .tag-view{
            height: 40px;
@@ -210,25 +239,24 @@
                     const rowData = this.table.tableData[rowIndex];
 
                     if (columnIndex!==0 && rowData.isOverDue) {
-                        return 'overdue';
+                        return isPhone() ?'overdue-mob' :'overdue';
                     }
 
                     if (columnIndex!==0 && !rowData.overOneMonth) {
-                        return 'over-one-month';
+                        return isPhone() ? 'over-one-month-mob' : 'over-one-month';
                     }
 
                     if (columnIndex!==0 && rowData.notOpen) {
-                        return 'not-open';
+                        return isPhone() ? 'not-open-mob' :'not-open';
                     }
 
+                    return  isPhone() ? 'normal-mob' : 'normal';
 
-
-
-                    return '';
                 }
 
             },
             mounted: function (){
+                console.log(navigator.platform);
                 console.log('~~~~~~~mounted');
                 const keys = Object.keys(this.myData);
                 let index = 0;
@@ -242,7 +270,6 @@
                         val.first = ind===0;
                         val.key = index;
                         val.date = '';
-                        console.log(val);
                         if (val.beginDate instanceof Array){
                             let isOver = true;
                             let overOneMonth = false;
@@ -307,15 +334,26 @@
     }
 
     function formatDate(dateStr) {
-        console.log(dateStr)
 
         const str = dateStr.replace(/\./g,'/');
          const arr = str.split('/');
          const month = arr[1].length>1 ? arr[1]: `0${arr[1]}`;
         const day = arr[2].length>1 ? arr[2]: `0${arr[1]}`;
         const last = `${arr[0]}/${month}/${day}`;
-        console.log(str,arr,last);
         return last;
+    }
+
+    function isPhone(){
+        var system ={};
+        var p = navigator.platform;
+        system.win = p.indexOf("Win") == 0;
+        system.mac = p.indexOf("Mac") == 0;
+        system.x11 = (p == "X11") || (p.indexOf("Linux") == 0);
+        if(system.win||system.mac||system.xll){//如果是电脑跳转到百度
+            return false;
+        }else{  //如果是手机,跳转到谷歌
+            return true;
+        }
     }
 
 
