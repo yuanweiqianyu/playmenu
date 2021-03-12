@@ -242,6 +242,7 @@
                         val.first = ind===0;
                         val.key = index;
                         val.date = '';
+                        console.log(val);
                         if (val.beginDate instanceof Array){
                             let isOver = true;
                             let overOneMonth = false;
@@ -251,7 +252,7 @@
                                 if (!isOverDue(val.endDate[index])){
                                     isOver = false;
                                 }
-                                if (oneMonthfromCloseDate(val.endDate)){
+                                if (oneMonthfromCloseDate(val.endDate[index])){
                                     overOneMonth = true;
                                 }
                                 if (notOpenTime(item)){
@@ -280,6 +281,7 @@
 
     // 是否逾期
     function isOverDue(dateStr){
+        dateStr = formatDate(dateStr);
         const currentDate = new Date();
         const currentTime = currentDate.getTime();
         const endDate = new Date(dateStr);
@@ -287,6 +289,7 @@
         return currentTime > endTime? true : false;
     }
     function  oneMonthfromCloseDate(dateStr){
+        dateStr = formatDate(dateStr,);
         const currentDate = new Date();
         const currentTime = currentDate.getTime();
         const endDate = new Date(dateStr);
@@ -295,11 +298,24 @@
         return overOneMonth;
     }
     function notOpenTime(dateStr){
+        dateStr = formatDate(dateStr);
         const currentDate = new Date();
         const currentTime = currentDate.getTime();
         const beginDate = new Date(dateStr);
         const beginTime = beginDate.getTime();
         return currentTime < beginTime ? true : false;
+    }
+
+    function formatDate(dateStr) {
+        console.log(dateStr)
+
+        const str = dateStr.replace(/\./g,'/');
+         const arr = str.split('/');
+         const month = arr[1].length>1 ? arr[1]: `0${arr[1]}`;
+        const day = arr[2].length>1 ? arr[2]: `0${arr[1]}`;
+        const last = `${arr[0]}/${month}/${day}`;
+        console.log(str,arr,last);
+        return last;
     }
 
 
