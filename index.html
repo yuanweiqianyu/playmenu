@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>京津冀一卡通排版</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <style>
+        * {
+            margin: 0;
+            border: 0;
+        }
+       .title {
+           margin-right: 10px;
+       }
+       .content {
+           margin-top: 20px;
+           padding: 20px;
+       }
+       .el-table .overdue {
+           color: #ddd;
+           text-decoration: line-through;
+       }
+       .el-table .over-one-month {
+           color: white;
+           background: #ca0909;
+       }
+        .el-table .el-table__body tr:hover td {
+            color: #333;
+            font-weight: bold;
+        }
+
+       .el-table .not-open {
+           color: black;
+           background: #168cf5;
+       }
+
+       .el-table{
+           font-size: 11px;
+       }
+
+       .tag-view{
+           height: 40px;
+           display: flex;
+           align-items: center;
+       }
+        .color-view {
+            font: 15px bold;
+            color: #333;
+            display: flex;
+            align-items: center;
+        }
+
+       .not-open-color:after{
+           width: 35px;
+           height: 20px;
+           background: #ca0909;
+           margin-left: 10px;
+           content: '';
+           display: inline-block;
+           margin-right: 15px;
+       }
+
+
+        .will-overdue-color:after{
+            width: 35px;
+            height: 20px;
+            background: #168cf5;
+            margin-left: 10px;
+            content: '';
+            display: inline-block;
+            margin-right: 15px;
+        }
+
+        .overdue-color:after{
+            width: 35px;
+            height: 20px;
+            color: #eee;
+            margin-left: 10px;
+            content: '';
+            display: inline-block;
+            margin-right: 15px;
+            content: '——';
+        }
+
+    </style>
+</head>
+<body>
+    <div id="app" >
+        <div class="content">
+            <h3 class="title">京津冀一卡通景点</h3>
+            <div class="tag-view" >
+                <span class="color-view not-open-color" >未开启</span>
+                <span class="color-view will-overdue-color">即将过期</span>
+                <span class="color-view overdue-color">已过期</span>
+
+            </div>
+            <el-table
+                    :data="table.tableData"
+                    :span-method="objectSpanMethod"
+                    border
+                    style="width: 100%"
+                    :cell-class-name="cellClassName"
+                    tooltip-effect="dark"
+            >
+<!--                :row-class-name="tableRowClassName"-->
+                <el-table-column
+                        v-for="headerItem in table.tableHeader"
+                        :key="headerItem.key"
+                        :prop="headerItem.prop"
+                        :label="headerItem.label"
+                        :width="headerItem.label==='时间'? 180 : undefined"
+                >
+                </el-table-column>
+
+            </el-table>
+        </div>
+    </div>
+
+</body>
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+<script type="text/javascript">
+
+
+    function getMyData(result) {
+        // $(window).load(function () {
+        //     $.getJSON('SennicSpot.json',function (data) {
+        //         console.log(data);
+        //         $.each(data,function (i,item) {
+        //             console.log(i,item);
+        //
+        //         })
+        //     })
+        // })
+
+
+        window.onload = function () {
+            var url = "content.json"/*json文件url，本地的就写本地的位置，如果是服务器的就写服务器的路径*/
+            var request = new XMLHttpRequest();
+            request.open("get", url);/*设置请求方法与路径*/
+            request.send(null);/*不发送数据到服务器*/
+            request.onload = function () {/*XHR对象获取到返回信息后执行*/
+                if (request.status == 200) {/*返回状态为200，即为数据获取成功*/
+                    var json = JSON.parse(request.responseText);
+
+                    result(json);
+                }
+            }
+        }
+
+
+        // $(window).load(async ()=>{
+        //     $.get('SennicSpot.json',function (data) {
+        //
+        //     });
+        // })
+
+    }
+
+    const monthData = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+    const month = new Date().getMonth();
+
+    const tableHeader = [
+        {'key':'1-1','prop':'area','label':'地区'},
+        {'key':'1-2','prop':'no','label':'序号'},
+        {'key':'1-3','prop':'name','label':'姓名'},
+        {'key':'1-4','prop':'price','label':'价格'},
+        {'key':'1-5','prop':'date','label':'时间'},
+        {'key':'1-6','prop':'num','label':'次数'},
+        {'key':'1-7','prop':'detail','label':'详情'}];
+
+    getMyData(myData=>{
+        var vue = new Vue({
+            el: '#app',
+            data: function (){
+                return {
+                    myData,
+                    tab: {
+                        date:'',
+                    },
+                    table:{
+                        tableHeader,
+                        tableData: [],
+                        orginData: [],
+                    }
+                }
+            },
+            methods: {
+                objectSpanMethod({ row, column, rowIndex, columnIndex }) {
+                    if (columnIndex === 0) {
+                            const rowData = this.table.tableData[rowIndex];
+                            if (rowData.first){
+
+                                return {
+                                   colspan: 1,
+                                   rowspan: rowData.allAreaConNum,
+                               }
+                            }else {
+                                return {
+                                    rowspan: 0,
+                                    colspan: 0
+                                }
+                            }
+
+                    }
+                },
+                cellClassName({row,column, rowIndex,columnIndex}) {
+                    const rowData = this.table.tableData[rowIndex];
+
+                    if (columnIndex!==0 && rowData.isOverDue) {
+                        return 'overdue';
+                    }
+
+                    if (columnIndex!==0 && !rowData.overOneMonth) {
+                        return 'over-one-month';
+                    }
+
+                    if (columnIndex!==0 && rowData.notOpen) {
+                        return 'not-open';
+                    }
+
+
+
+
+                    return '';
+                }
+
+            },
+            mounted: function (){
+                const keys = Object.keys(this.myData);
+                let index = 0;
+                for (let key of keys){
+                    const values = this.myData[key];
+                    const newValues = values.map(((val,ind)=>{
+                        index++;
+                        val.area = key;
+                        val.no = index;
+                        val.allAreaConNum = values.length;
+                        val.first = ind===0;
+                        val.key = index;
+                        val.date = '';
+                        if (val.beginDate instanceof Array){
+                            let isOver = true;
+                            let overOneMonth = false;
+                            let notOpen = false;
+                            val.beginDate.map((item,index)=>{
+                                val.date += `${item} ~ ${val.endDate[index]} ,\n `;
+                                if (!isOverDue(val.endDate[index])){
+                                    isOver = false;
+                                }
+                                if (oneMonthfromCloseDate(val.endDate)){
+                                    overOneMonth = true;
+                                }
+                                if (notOpenTime(item)){
+                                    notOpen = true;
+                                }
+                            })
+                            val.notOpen = notOpen;
+                            val.isOverDue = isOver;
+                            val.date = val.date.slice(0,val.date.length-3);
+                        }else {
+                            val.date = `${val.beginDate} ~ ${val.endDate}`;
+                            // 是否逾期
+                            val.isOverDue = isOverDue(val.endDate);
+                            val.overOneMonth = oneMonthfromCloseDate(val.endDate);
+                            val.notOpen = notOpenTime(val.beginDate);
+                        }
+
+                        return val;
+                    }));
+                    this.table.tableData = this.table.tableData.concat(...newValues);
+                    this.table.orginData = this.table.orginData.concat(...newValues);
+                }
+            },
+        })
+    });
+
+    // 是否逾期
+    function isOverDue(dateStr){
+        const currentDate = new Date();
+        const currentTime = currentDate.getTime();
+        const endDate = new Date(dateStr);
+        const endTime = endDate.getTime();
+        return currentTime > endTime;
+    }
+    function  oneMonthfromCloseDate(dateStr){
+        const currentDate = new Date();
+        const currentTime = currentDate.getTime();
+        const endDate = new Date(dateStr);
+        const endTime = endDate.getTime();
+        const overOneMonth = endTime - currentTime > 31 * 24 * 60 * 60 * 1000;
+        return overOneMonth;
+    }
+    function notOpenTime(dateStr){
+        const currentDate = new Date();
+        const currentTime = currentDate.getTime();
+        const beginDate = new Date(dateStr);
+        const beginTime = beginDate.getTime();
+        return currentTime < beginTime;
+    }
+
+
+
+
+
+</script>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+<!--<!DOCTYPE html>-->
+<!--<html>-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    &lt;!&ndash; import CSS &ndash;&gt;-->
+<!--    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">-->
+<!--</head>-->
+<!--<body>-->
+<!--<div id="app">-->
+<!--    <el-button @click="visible = true">Button</el-button>-->
+<!--    <el-dialog :visible.sync="visible" title="Hello world">-->
+<!--        <p>Try Element</p>-->
+<!--    </el-dialog>-->
+<!--</div>-->
+<!--</body>-->
+<!--&lt;!&ndash; import Vue before Element &ndash;&gt;-->
+<!--<script src="https://unpkg.com/vue/dist/vue.js"></script>-->
+<!--&lt;!&ndash; import JavaScript &ndash;&gt;-->
+<!--<script src="https://unpkg.com/element-ui/lib/index.js"></script>-->
+<!--<script>-->
+<!--    new Vue({-->
+<!--        el: '#app',-->
+<!--        data: function() {-->
+<!--            return { visible: false }-->
+<!--        }-->
+<!--    })-->
+<!--</script>-->
+<!--</html>-->
+
+
+
+
+
+
+
